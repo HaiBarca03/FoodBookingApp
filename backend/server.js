@@ -2,7 +2,9 @@ const express = require('express')
 const cors = require('cors')
 const dbConnect = require('./config/db')
 const foodRouter = require('./routes/foodRoute')
-
+const userRouter = require('./routes/userRoute')
+const cartRouter = require('./routes/cartRoute')
+const orderRouter = require('./routes/orderRoute')
 
 // app config
 require('dotenv').config()
@@ -21,6 +23,9 @@ dbConnect()
 // api endpoints
 app.use('/api/food', foodRouter)
 app.use('/images', express.static(path.join(__dirname, 'uploads')));
+app.use('/api/user', userRouter)
+app.use('/api/cart', cartRouter)
+app.use('/api/order', orderRouter)
 
 
 app.get('/', function (req, res) {
