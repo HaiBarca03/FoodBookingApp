@@ -1,5 +1,7 @@
 const express = require('express')
 const { addFood, listFood, removeFood } = require('../controllers/foodController')
+const authMiddleware = require('../middleware/auth')
+const authList = require('../middleware/authList')
 const multer = require('multer')
 
 const foodRouter = express.Router()

@@ -1,35 +1,62 @@
-import React from 'react'
+import React, { useContext } from 'react'
 import './Orders.css'
 import { useState } from 'react'
 import axios from 'axios'
 import { toast } from 'react-toastify'
 import { useEffect } from 'react'
 import { assets } from '../../assets/assets'
+import { StoreContext } from '../../context/StoreContext'
 
 const Orders = ({ url }) => {
     const [orders, setOrders] = useState([])
-    const fetchAllOrders = async () => {
-        const response = await axios.get(url + '/api/order/list')
-        if (response.data.success) {
-            setOrders(response.data.data)
-            console.log(response.data.data)
-        } else {
-            toast.error('Get all orders err')
+    const { token } = useContext(StoreContext)
+    useEffect(() => {
+        // If no token, show an error or redirect
+        if (!token) {
+            toast.error('Please log in to view orders.');
+            return;
         }
-    }
+
+        // Fetch orders if token exists
+        const fetchAllOrders = async () => {
+            try {
+                const response = await axios.get(`${url}/api/order/list`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}` // Include token in header
+                    }
+                });
+                if (response.data.success) {
+                    setOrders(response.data.data);
+                } else {
+                    toast.error('Failed to fetch orders.');
+                }
+            } catch (error) {
+                toast.error('An error occurred while fetching orders.');
+            }
+        };
+
+        fetchAllOrders();
+    }, [token, url]); // Re-run effect if token or url changes
 
     const statusHander = async (event, orderId) => {
         const response = await axios.post(url + '/api/order/status', {
             orderId,
             status: event.target.value
+        }, {
+            headers: {
+                'Authorization': `Bearer ${token}` // Include token in header
+            }
         })
         if (response.data.success) {
             await fetchAllOrders()
         }
     }
-    useEffect(() => {
-        fetchAllOrders()
-    }, [])
+    if (!token) {
+        return <p>Please log in to view orders.</p>;
+    }
+    // useEffect(() => {
+    //     fetchAllOrders()
+    // }, [])
     return (
         <div className='order add'>
             <h3>Order Page</h3>

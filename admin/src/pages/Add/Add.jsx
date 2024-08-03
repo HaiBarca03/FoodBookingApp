@@ -1,12 +1,14 @@
-import React, { useEffect, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import './Add.css'
 import { assets } from '../../assets/assets'
 import axios from 'axios'
 import { toast } from 'react-toastify'
+import { StoreContext } from '../../context/StoreContext'
 
 const Add = ({ url }) => {
 
     const [image, setImage] = useState(false)
+    const { token } = useContext(StoreContext);
     const [data, setData] = useState({
         name: "",
         description: "",
@@ -14,11 +16,9 @@ const Add = ({ url }) => {
         category: "Salad"
     })
     const onChangeHandler = (event) => {
-        const name = event.target.name;
-        const value = event.target.value;
-        setData(data => ({ ...data, [name]: value })
-        )
-    }
+        const { name, value } = event.target;
+        setData((prevData) => ({ ...prevData, [name]: value }));
+    };
     const onSubmitHandler = async (event) => {
         event.preventDefault();
         const formData = new FormData();
@@ -28,21 +28,32 @@ const Add = ({ url }) => {
         formData.append("category", data.category)
         formData.append("image", image)
 
-        const response = await axios.post(`${url}/api/food/add`, formData)
-        if (response.data.success) {
-            setData({
-                name: "",
-                description: "",
-                price: "",
-                category: "Salad"
-            })
-            setImage(false)
-            toast.success("Food add success!")
-        } else {
-            toast.error(response.data.massage)
+        try {
+            const response = await axios.post(`${url}/api/food/add`, formData, {
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+            if (response.data.success) {
+                setData({
+                    name: "",
+                    description: "",
+                    price: "",
+                    category: "Salad"
+                });
+                setImage(null);
+                toast.success("Food added successfully!");
+            } else {
+                toast.error(response.data.message);
+            }
+        } catch (error) {
+            toast.error("An error occurred while adding the food item.");
         }
     }
-
+    if (!token) {
+        return <p>You need to be logged in to add food items.</p>;
+    }
     return (
         <div className='add' >
             <form className='flex-col' onSubmit={onSubmitHandler} >

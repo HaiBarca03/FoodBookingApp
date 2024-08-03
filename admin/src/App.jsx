@@ -1,6 +1,7 @@
-import React from 'react'
+import React, { useState } from 'react'
 import Navbar from './components/Navbar/Navbar'
 import Sidebar from './components/Sidebar/Sidebar'
+import LoginPopup from './components/LoginPopup/LoginPopup'
 import { Route, Routes } from 'react-router-dom'
 import Add from './pages/Add/Add'
 import List from './pages/List/List'
@@ -11,32 +12,36 @@ import 'react-toastify/dist/ReactToastify.css';
 const App = () => {
 
   const url = 'http://localhost:3000'
+  const [showLogin, setShowLogin] = useState(false)
 
   return (
-    <div>
-      <Navbar />
-      <div className="app-content">
-        <Sidebar />
-        <Routes>
-          <Route path='/add' element={<Add url={url} />} />
-          <Route path='/list' element={<List url={url} />} />
-          <Route path='/orders' element={<Orders url={url} />} />
-        </Routes>
+    <>
+      <div>
+        {showLogin ? <LoginPopup setShowLogin={setShowLogin} /> : <></>}
+        <Navbar setShowLogin={setShowLogin} />
+        <div className="app-content">
+          <Sidebar />
+          <Routes>
+            <Route path='/add' element={<Add url={url} />} />
+            <Route path='/list' element={<List url={url} />} />
+            <Route path='/orders' element={<Orders url={url} />} />
+          </Routes>
+        </div>
+        <ToastContainer
+          position="top-right"
+          autoClose={5000}
+          hideProgressBar={false}
+          newestOnTop={false}
+          closeOnClick
+          rtl={false}
+          pauseOnFocusLoss
+          draggable
+          pauseOnHover
+          theme="light"
+          transition={Bounce}
+        />
       </div>
-      <ToastContainer
-        position="top-right"
-        autoClose={5000}
-        hideProgressBar={false}
-        newestOnTop={false}
-        closeOnClick
-        rtl={false}
-        pauseOnFocusLoss
-        draggable
-        pauseOnHover
-        theme="light"
-        transition={Bounce}
-      />
-    </div>
+    </>
   )
 }
 
